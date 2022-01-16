@@ -11,16 +11,22 @@ public class Controller {
     private int height = 20;
     private int appleX = 0;
     private int appleY = 0;
+    private int speed = 3;
     private int cornerSize = 25;
     private List<Corner> snake = new ArrayList<>();
     private Dir direction = Dir.left;
     private boolean gameOver = false;
-
     private Random rand = new Random();
 
     public enum Dir {
         left, right, up, down
     }
+
+
+
+
+
+
 
     public int getWidth() {
         return width;
@@ -78,7 +84,7 @@ public class Controller {
         this.direction = direction;
     }
 
-    public boolean isGameOver() {
+    public boolean getGameOver() {
         return gameOver;
     }
 
@@ -93,4 +99,13 @@ public class Controller {
     public void setRand(Random rand) {
         this.rand = rand;
     }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
 }
