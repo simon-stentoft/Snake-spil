@@ -10,10 +10,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -21,16 +25,18 @@ import java.util.Random;
 public class Main extends Application {
 
     //Variables
-    private int width = 20;
-    private int height = 20;
+    private int width = 30;
+    private int height = 30;
     private int appleX = 0;
     private int appleY = 0;
-    private int speed = 3;
-    private int cornerSize = 25;
+    private int speed = 5;
+    private int cornerSize = 40;
     private List<Corner> snake = new ArrayList<>();
     private Dir direction = Dir.left;
     private boolean gameOver = false;
     private Random rand = new Random();
+    MediaPlayer mediaPlayer;
+    int score = 0;
 
     public enum Dir {
         left, right, up, down
@@ -40,8 +46,12 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         // FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("sample.fxml"));
+        Database database = new Database();
 
+        database.createTable();
+        database.addScore(score);
         apple();
+        //music();
 
         VBox root = new VBox();
         Canvas canvas = new Canvas(width * cornerSize, height * cornerSize);
@@ -71,16 +81,16 @@ public class Main extends Application {
 
         //Controls
         scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEvent -> {
-            if (keyEvent.getCode() == KeyCode.W) {
+            if (keyEvent.getCode() == KeyCode.W && direction != Dir.down) {
                 direction = Dir.up;
             }
-            if (keyEvent.getCode() == KeyCode.A) {
+            if (keyEvent.getCode() == KeyCode.A && direction != Dir.right) {
                 direction = Dir.left;
             }
-            if (keyEvent.getCode() == KeyCode.D) {
+            if (keyEvent.getCode() == KeyCode.D && direction != Dir.left) {
                 direction = Dir.right;
             }
-            if (keyEvent.getCode() == KeyCode.S) {
+            if (keyEvent.getCode() == KeyCode.S && direction != Dir.up) {
                 direction = Dir.down;
             }
         });
@@ -106,11 +116,17 @@ public class Main extends Application {
         }
     }
 
+    public void music() {
+        playMusic playMusic = new playMusic();
+        Thread thead = new Thread(playMusic);
+        thead.start();
+    }
+
     public void tick(GraphicsContext gc) {
         if (gameOver) {
             gc.setFill(Color.RED);
-            gc.setFont(new Font("",50));
-            gc.fillText("You lost",100,250);
+            gc.setFont(new Font("",75));
+            gc.fillText("You lost",465,250);
             return;
         }
         for (int i = snake.size() - 1; i >= 1; i--) {
@@ -169,7 +185,7 @@ public class Main extends Application {
             gc.fillRect(c.x * cornerSize, c.y * cornerSize, cornerSize - 2, cornerSize - 2);
         }
 
-        //Making food appear
+        //Making apples appear
         Color cc = Color.RED;
         gc.setFill(cc);
         gc.fillOval(appleX * cornerSize, appleY * cornerSize, cornerSize, cornerSize);
@@ -186,6 +202,20 @@ public class Main extends Application {
         public Corner(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+    }
+
+    public class playMusic implements Runnable {
+
+        @Override
+        public void run() {
+            String s = "Porter Robinson & Madeon - Shelter.mp3";
+            String path = getClass().getResource(s).getPath();
+            System.out.println(path);
+            Media media = new Media(new File(path).toURI().toString());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            mediaPlayer.play();
         }
     }
 
