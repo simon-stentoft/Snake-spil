@@ -3,14 +3,12 @@ package sample;
 import javafx.event.ActionEvent;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class Database {
     private Connection connection; //make final
     private Statement stmt;
+    private volatile int highestScore;
 
     private final String url = "jdbc:sqlite:Scoreboard";
 
@@ -51,5 +49,33 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void displayHighestScore() {
+        String sql = "SELECT MAX(score) AS highScore FROM HIGHSCOREBOARD ";
+
+        stmt = null;
+        try {
+            stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(sql);
+            while (resultSet.next()) {
+                highestScore = resultSet.getInt("highScore");
+                System.out.println(highestScore + "hi");
+            }
+
+            stmt.close();
+            System.out.println("Selected highscore.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getHighestScore() {
+        System.out.println("hejget" + highestScore);
+        return highestScore;
+    }
+
+    public void setHighestScore(int highestScore) {
+        this.highestScore = highestScore;
     }
 }

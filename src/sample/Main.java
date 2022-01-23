@@ -24,6 +24,7 @@ import java.util.Random;
 
 public class Main extends Application {
 
+    private Database database;
     //Variables
     private int width = 30;
     private int height = 30;
@@ -46,11 +47,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         // FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("sample.fxml"));
-        Database database = new Database();
+        database = new Database();
 
         database.createTable();
-        database.addScore(score);
         apple();
+        database.displayHighestScore();
         //music();
 
         VBox root = new VBox();
@@ -162,15 +163,21 @@ public class Main extends Application {
                 break;
         }
 
-        //Eating apples
+        //Eating apples, increases score for each apple
         if (appleX == snake.get(0).x && appleY == snake.get(0).y) {
             snake.add(new Corner(-1,-1));
+            score++;
             apple();
-        }//Destroy/end game
+        }//Destroy/end game if snake eats itself and adds score to database
         for (int i = 1; i < snake.size(); i++) {
             if (snake.get(0).x == snake.get(i).x && snake.get(0).y == snake.get(i).y) {
                 gameOver = true;
+                database.addScore(score);
             }
+        }
+        //adds score to database if snake hits corner
+        if (gameOver) {
+            database.addScore(score);
         }
 
         //Background
@@ -189,6 +196,16 @@ public class Main extends Application {
         Color cc = Color.RED;
         gc.setFill(cc);
         gc.fillOval(appleX * cornerSize, appleY * cornerSize, cornerSize, cornerSize);
+
+        //Score
+        gc.setFill(Color.BLACK);
+        gc.setFont(new Font("",50));
+        gc.fillText("Score: " + score, 40, 80);
+
+        //Highscore
+        gc.setFill(Color.BLACK);
+        gc.setFont(new Font("",50));
+        gc.fillText("Highscore: " + database.getHighestScore(), 500, 80);
     }
 
     public static void main(String[] args) {
