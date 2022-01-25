@@ -71,7 +71,6 @@ public class Database {
     }
 
     public int getHighestScore() {
-        System.out.println("hejget" + highestScore);
         return highestScore;
     }
 

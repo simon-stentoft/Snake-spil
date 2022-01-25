@@ -2,22 +2,20 @@ package sample;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import javax.sound.sampled.*;
 import java.io.File;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -52,7 +50,7 @@ public class Main extends Application {
         database.createTable();
         apple();
         database.displayHighestScore();
-        //music();
+        music();
 
         VBox root = new VBox();
         Canvas canvas = new Canvas(width * cornerSize, height * cornerSize);
@@ -117,17 +115,29 @@ public class Main extends Application {
         }
     }
 
-    public void music() {
-        playMusic playMusic = new playMusic();
-        Thread thead = new Thread(playMusic);
-        thead.start();
+    //Plays music while game is running. Only plays .wav files.
+    public void music() throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+        File file = new File("Trillville - Neva Eva Feat. Lil Jon (HQ).wav");
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioStream);
+        clip.start();
+
+        if (gameOver) { //TODO fix this
+            clip.close();
+            File file2 = new File("YOU DIED DS.wav");
+            AudioInputStream audioStream2 = AudioSystem.getAudioInputStream(file2);
+            Clip clip2 = AudioSystem.getClip();
+            clip2.open(audioStream2);
+            clip2.start();
+        }
     }
 
     public void tick(GraphicsContext gc) {
         if (gameOver) {
             gc.setFill(Color.RED);
             gc.setFont(new Font("",75));
-            gc.fillText("You lost",465,250);
+            gc.fillText("You Died",465,250);
             return;
         }
         for (int i = snake.size() - 1; i >= 1; i--) {
@@ -205,7 +215,7 @@ public class Main extends Application {
         //Highscore
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("",50));
-        gc.fillText("Highscore: " + database.getHighestScore(), 500, 80);
+        gc.fillText("Highscore: " + database.getHighestScore(), 850, 80);
     }
 
     public static void main(String[] args) {
@@ -221,21 +231,6 @@ public class Main extends Application {
             this.y = y;
         }
     }
-
-    public class playMusic implements Runnable {
-
-        @Override
-        public void run() {
-            String s = "Porter Robinson & Madeon - Shelter.mp3";
-            String path = getClass().getResource(s).getPath();
-            System.out.println(path);
-            Media media = new Media(new File(path).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-            mediaPlayer.play();
-        }
-    }
-
 
     public int getWidth() {
         return width;
